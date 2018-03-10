@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
                 final Class activity = Class.forName(getPackageName()+".Lab" + i + "Activity");
                 btn = new Button(this);
                 LinearLayout.LayoutParams lp =
-                        new LinearLayout.LayoutParams(dpToPx(200),dpToPx(40));
+                        new LinearLayout.LayoutParams(dpToPx(250),dpToPx(50));
 
                 lp.setMargins(0, dpToPx(24), 0, 0);
                 btn.setLayoutParams(lp);

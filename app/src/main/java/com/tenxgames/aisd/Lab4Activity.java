@@ -1,5 +1,6 @@
 package com.tenxgames.aisd;
 
+import android.annotation.SuppressLint;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,7 +16,7 @@ import android.widget.Toast;
 import java.util.Arrays;
 import java.util.Random;
 
-public class Lab3Activity extends AppCompatActivity {
+public class Lab4Activity extends AppCompatActivity {
 
     /**
      * Минимальное значение числа при случайном заполнении.
@@ -33,14 +34,14 @@ public class Lab3Activity extends AppCompatActivity {
     private static final int MAX_RANDOM_AMOUNT = 10000;
 
     /**
-     * Идентификатор контейнера для сортировки прямым включением.
+     * Идентификатор контейнера для шейкерной сортировки.
      */
-    private static final int DIRECTINC_CONTAINER = 1;
+    private static final int SHAKERSORT_CONTAINER = 1;
 
     /**
-     * Идентификатор контейнера для сортировки прямым выбором.
+     * Идентификатор контейнера для сортировки Шелла.
      */
-    private static final int DIRECTSEL_CONTAINER = 2;
+    private static final int SHELLSORT_CONTAINER = 2;
 
     /**
      * Текущее состояние контейнеров(сумма идентификаторов).
@@ -60,9 +61,9 @@ public class Lab3Activity extends AppCompatActivity {
                 String text = ((EditText) view).getText().toString();
 
                 EditText box;
-                box = findViewById(R.id.lab3DirectIncBox);
+                box = findViewById(R.id.lab4ShakerSortBox);
                 box.setText(text);
-                box = findViewById(R.id.lab3DirectSelBox);
+                box = findViewById(R.id.lab4ShellSortBox);
                 box.setText(text);
             }
         }
@@ -72,7 +73,7 @@ public class Lab3Activity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_lab3);
+        setContentView(R.layout.activity_lab4);
 
         /// Инициализация элементов управления
         initializeCheckBoxes();
@@ -91,7 +92,7 @@ public class Lab3Activity extends AppCompatActivity {
     private void initializeCheckBoxes() {
         CheckBox cb;
 
-        cb = findViewById(R.id.lab3SyncFillingCheckBox);
+        cb = findViewById(R.id.lab4SyncFillingCheckBox);
         cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
@@ -99,34 +100,34 @@ public class Lab3Activity extends AppCompatActivity {
             }
         });
 
-        cb = findViewById(R.id.lab3DirectIncCheckBox);
+        cb = findViewById(R.id.lab4ShakerSortCheckBox);
         cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                CheckBox cb = findViewById(R.id.lab3DirectIncCheckBox);
-                LinearLayout container = findViewById(R.id.lab3DirectIncContainer);
+                CheckBox cb = findViewById(R.id.lab4ShakerSortCheckBox);
+                LinearLayout container = findViewById(R.id.lab4ShakerSortContainer);
                 if (isChecked) {
                     container.setVisibility(View.VISIBLE);
-                    selectedContainers += DIRECTINC_CONTAINER;
+                    selectedContainers += SHAKERSORT_CONTAINER;
                 } else {
                     container.setVisibility(View.GONE);
-                    selectedContainers -= DIRECTINC_CONTAINER;
+                    selectedContainers -= SHAKERSORT_CONTAINER;
                 }
             }
         });
 
-        cb = findViewById(R.id.lab3DirectSelCheckBox);
+        cb = findViewById(R.id.lab4ShellSortCheckBox);
         cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                CheckBox cb = findViewById(R.id.lab3DirectSelCheckBox);
-                LinearLayout container = findViewById(R.id.lab3DirectSelContainer);
+                CheckBox cb = findViewById(R.id.lab4ShellSortCheckBox);
+                LinearLayout container = findViewById(R.id.lab4ShellSortContainer);
                 if (isChecked) {
                     container.setVisibility(View.VISIBLE);
-                    selectedContainers += DIRECTSEL_CONTAINER;
+                    selectedContainers += SHELLSORT_CONTAINER;
                 } else {
                     container.setVisibility(View.GONE);
-                    selectedContainers -= DIRECTSEL_CONTAINER;
+                    selectedContainers -= SHELLSORT_CONTAINER;
                 }
             }
         });
@@ -139,121 +140,130 @@ public class Lab3Activity extends AppCompatActivity {
      *
      * @see Button
      * @see View.OnClickListener
-     * @see Lab3Activity#getRandomIntArray()
-     * @see Lab3Activity#startSort(int[], int[])
-     * @see Lab3Activity#isStringCorrect(char[])
+     * @see Lab4Activity#getRandomIntArray()
+     * @see Lab4Activity#startSort(int[], int[])
+     * @see Lab4Activity#isStringCorrect(char[])
      */
     private void initializeButtons() {
         Button btn;
-        btn = findViewById(R.id.lab3StartButton);
+        btn = findViewById(R.id.lab4StartButton);
 
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 EditText box;
-                String directIncStr, directSelStr;
-                directIncStr = directSelStr = null;
-                Log.w("Lab3", "Selected Containers " + selectedContainers);
-                if (isContainerActive(DIRECTINC_CONTAINER)) {
-                    box = findViewById(R.id.lab3DirectIncBox);
-                    directIncStr = box.getText().toString();
-                    if (directIncStr.equals("") || !isStringCorrect(directIncStr.toCharArray())) {
+                String shakerSortStr, shellSortStr;
+                shakerSortStr = shellSortStr = null;
+                Log.w("Lab4", "Selected Containers " + selectedContainers);
+                if (isContainerActive(SHAKERSORT_CONTAINER)) {
+                    box = findViewById(R.id.lab4ShakerSortBox);
+                    shakerSortStr = box.getText().toString();
+                    if (shakerSortStr.equals("") || !isStringCorrect(shakerSortStr.toCharArray())) {
                         Toast.makeText(getApplicationContext(),
                                 "Ошибка ввода элементов в прямом включении!", Toast.LENGTH_LONG).show();
                         return;
                     }
                 }
 
-                if (isContainerActive(DIRECTSEL_CONTAINER)) {
-                    box = findViewById(R.id.lab3DirectSelBox);
-                    directSelStr = box.getText().toString();
-                    if (directSelStr.equals("") || !isStringCorrect(directSelStr.toCharArray())) {
+                if (isContainerActive(SHELLSORT_CONTAINER)) {
+                    box = findViewById(R.id.lab4ShellSortBox);
+                    shellSortStr = box.getText().toString();
+                    if (shellSortStr.equals("") || !isStringCorrect(shellSortStr.toCharArray())) {
                         Toast.makeText(getApplicationContext(),
                                 "Ошибка ввода элементов в прямом выборе!", Toast.LENGTH_LONG).show();
                         return;
                     }
                 }
 
-                startSort(parseStringtoArray(directIncStr), parseStringtoArray(directSelStr));
+                startSort(parseStringtoArray(shakerSortStr), parseStringtoArray(shellSortStr));
             }
         });
 
-        btn = findViewById(R.id.lab3RandomButton);
+        btn = findViewById(R.id.lab4RandomButton);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int[] directIncArray, directSelArray, sharedArray;
+                int[] shakerSortArray, shellSortArray, sharedArray;
                 EditText box;
                 TextView tw;
 
-                directIncArray = directSelArray = sharedArray = null;
+                shakerSortArray = shellSortArray = sharedArray = null;
 
                 if (isSyncFillingActivated) {
                     sharedArray = getRandomIntArray();
                 }
 
-                if (isContainerActive(DIRECTINC_CONTAINER)) {
+                if (isContainerActive(SHAKERSORT_CONTAINER)) {
                     if (isSyncFillingActivated)
-                        directIncArray = Arrays.copyOf(sharedArray, sharedArray.length);
+                        shakerSortArray = Arrays.copyOf(sharedArray, sharedArray.length);
                     else
-                        directIncArray = getRandomIntArray();
+                        shakerSortArray = getRandomIntArray();
 
-                    box = findViewById(R.id.lab3DirectIncBox);
-                    box.setText(arrayToString(directIncArray));
+                    box = findViewById(R.id.lab4ShakerSortBox);
+                    box.setText(arrayToString(shakerSortArray));
 
-                    tw = findViewById(R.id.lab3DirectIncAmount);
-                    tw.setText("Количество элементов: " + directIncArray.length);
+                    tw = findViewById(R.id.lab4ShakerSortAmount);
+                    tw.setText("Количество элементов: " + shakerSortArray.length);
                 }
 
-                if (isContainerActive(DIRECTSEL_CONTAINER)) {
+                if (isContainerActive(SHELLSORT_CONTAINER)) {
                     if (isSyncFillingActivated)
-                        directSelArray = Arrays.copyOf(sharedArray, sharedArray.length);
+                        shellSortArray = Arrays.copyOf(sharedArray, sharedArray.length);
                     else
-                        directSelArray = getRandomIntArray();
+                        shellSortArray = getRandomIntArray();
 
-                    box = findViewById(R.id.lab3DirectSelBox);
-                    box.setText(arrayToString(directSelArray));
+                    box = findViewById(R.id.lab4ShellSortBox);
+                    box.setText(arrayToString(shellSortArray));
 
-                    tw = findViewById(R.id.lab3DirectSelAmount);
-                    tw.setText("Количество элементов: " + directSelArray.length);
+                    tw = findViewById(R.id.lab4ShellSortAmount);
+                    tw.setText("Количество элементов: " + shellSortArray.length);
                 }
 
-                startSort(directIncArray, directSelArray);
+                startSort(shakerSortArray, shellSortArray);
             }
         });
 
-        btn = findViewById(R.id.lab3ClearButton);
+        btn = findViewById(R.id.lab4ClearButton);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 /// Очистка полей результата
-                TextView tw;
-                tw = findViewById(R.id.lab3DirectIncAmount);
-                tw.setText("Количество элементов: ");
-                tw = findViewById(R.id.lab3DirectIncComps);
-                tw.setText("Сравнения: ");
-                tw = findViewById(R.id.lab3DirectIncTime);
-                tw.setText("Время (сек): ");
-                tw = findViewById(R.id.lab3DirectIncSwaps);
-                tw.setText("Перестановки: ");
-                tw = findViewById(R.id.lab3DirectSelAmount);
-                tw.setText("Количество элементов: ");
-                tw = findViewById(R.id.lab3DirectSelComps);
-                tw.setText("Сравнения: ");
-                tw = findViewById(R.id.lab3DirectSelTime);
-                tw.setText("Время (сек): ");
-                tw = findViewById(R.id.lab3DirectSelSwaps);
-                tw.setText("Перестановки: ");
-
+                clearResults();
 
                 /// Очистка полей ввода
                 EditText box;
-                box = findViewById(R.id.lab3DirectIncBox);
+                box = findViewById(R.id.lab4ShakerSortBox);
                 box.setText("");
-                box = findViewById(R.id.lab3DirectSelBox);
+                box = findViewById(R.id.lab4ShellSortBox);
                 box.setText("");
             }
         });
+    }
+
+    /**
+     * Очищает {@link TextView поля результатов}
+     *
+     * @see TextView
+     */
+    private void clearResults()
+    {
+        TextView tw;
+        tw = findViewById(R.id.lab4ShakerSortAmount);
+        tw.setText("Количество элементов: ");
+        tw = findViewById(R.id.lab4ShakerSortComps);
+        tw.setText("Сравнения: ");
+        tw = findViewById(R.id.lab4ShakerSortTime);
+        tw.setText("Время (сек): ");
+        tw = findViewById(R.id.lab4ShakerSortSwaps);
+        tw.setText("Перестановки: ");
+        tw = findViewById(R.id.lab4ShellSortAmount);
+        tw.setText("Количество элементов: ");
+        tw = findViewById(R.id.lab4ShellSortComps);
+        tw.setText("Сравнения: ");
+        tw = findViewById(R.id.lab4ShellSortTime);
+        tw.setText("Время (сек): ");
+        tw = findViewById(R.id.lab4ShellSortSwaps);
+        tw.setText("Перестановки: ");
     }
 
     /**
@@ -265,9 +275,9 @@ public class Lab3Activity extends AppCompatActivity {
      */
     private void initializeTextBoxes() {
         EditText box;
-        box = findViewById(R.id.lab3DirectIncBox);
+        box = findViewById(R.id.lab4ShakerSortBox);
         box.setOnFocusChangeListener(onFocusChangeListener);
-        box = findViewById(R.id.lab3DirectSelBox);
+        box = findViewById(R.id.lab4ShellSortBox);
         box.setOnFocusChangeListener(onFocusChangeListener);
     }
 
@@ -290,9 +300,9 @@ public class Lab3Activity extends AppCompatActivity {
     }
 
     /**
-     * Генерирует массив случайной длины (от 1 до {@link Lab3Activity#MAX_RANDOM_AMOUNT}) и
-     * заполняет его числами от {@link Lab3Activity#MIN_RANDOM_NUMBER} до
-     * {@link Lab3Activity#MAX_RANDOM_NUMBER} включительно.
+     * Генерирует массив случайной длины (от 1 до {@link Lab4Activity#MAX_RANDOM_AMOUNT}) и
+     * заполняет его числами от {@link Lab4Activity#MIN_RANDOM_NUMBER} до
+     * {@link Lab4Activity#MAX_RANDOM_NUMBER} включительно.
      *
      * @return Сгенерированный массив чисел.
      */
@@ -324,12 +334,12 @@ public class Lab3Activity extends AppCompatActivity {
     /**
      * Инициализирует сортировку введенных массивов, используя отдельные потоки.
      *
-     * @param directIncArray Массив для сортировки прямым включением.
-     * @param directSelArray Массив для сортировки прямым выбором.
+     * @param shakerSortArray Массив для шейкерной сортировки.
+     * @param shellSortArray  Массив для сортировки Шелла.
      */
-    private void startSort(final int[] directIncArray, final int[] directSelArray) {
-        /// Если был передан массив для сортировки прямым включением
-        if (directIncArray != null) {
+    private void startSort(final int[] shakerSortArray, final int[] shellSortArray) {
+        /// Если был передан массив для шейкерной сортировки
+        if (shakerSortArray != null) {
             new Thread() {
                 public void run() {
                     /// Инициализируем переменные для подсчёта сравнений и перемещений и
@@ -337,24 +347,37 @@ public class Lab3Activity extends AppCompatActivity {
                     int comparsions = 0, swaps = 0;
                     long time = System.nanoTime();
                     int tmp;
-                    /// Начинаем сортировку прямым включением
-                    for (int i = 1; i < directIncArray.length; i++) {
-                        /// Запоминаем элемент
-                        tmp = directIncArray[i];
-                        /// Ищем место для вставки
-                        for (int j = 0; j < i; j++) {
+                    /// Переменные для хранения правой и левой границ
+                    int right = shakerSortArray.length - 1;
+                    int left = 0;
+
+                    /// Пока границы не встретятся
+                    while (left < right) {
+                        /// Проход слева направо методом "пузырька"
+                        for (int i = left; i < right; i++) {
                             comparsions++;
-                            if (tmp < directIncArray[j]) {
-                                /// Сдвигаем массив
-                                for (int x = i; x > j; x--) {
-                                    swaps++;
-                                    directIncArray[x] = directIncArray[x - 1];
-                                }
-                                /// Вставляем элемент
-                                directIncArray[j] = tmp;
-                                break;
+                            if (shakerSortArray[i] > shakerSortArray[i + 1]) {
+                                swaps++;
+                                tmp = shakerSortArray[i];
+                                shakerSortArray[i] = shakerSortArray[i + 1];
+                                shakerSortArray[i + 1] = tmp;
                             }
                         }
+                        /// Один элемент "всплыл", а значит надо подвинуть правую границу
+                        right--;
+
+                        /// Проход справа налево тем же способом
+                        for (int i = right; i > left; i--) {
+                            comparsions++;
+                            if (shakerSortArray[i] < shakerSortArray[i - 1]) {
+                                swaps++;
+                                tmp = shakerSortArray[i];
+                                shakerSortArray[i] = shakerSortArray[i - 1];
+                                shakerSortArray[i - 1] = tmp;
+                            }
+                        }
+                        /// Сдвигаем левую границу
+                        left++;
                     }
 
                     /// Останавливаем таймер и записываем результаты на экране
@@ -366,15 +389,15 @@ public class Lab3Activity extends AppCompatActivity {
                         @Override
                         public void run() {
                             EditText box;
-                            box = findViewById(R.id.lab3DirectIncBox);
-                            box.setText(arrayToString(directIncArray));
+                            box = findViewById(R.id.lab4ShakerSortBox);
+                            box.setText(arrayToString(shakerSortArray));
 
                             TextView tw;
-                            tw = findViewById(R.id.lab3DirectIncComps);
+                            tw = findViewById(R.id.lab4ShakerSortComps);
                             tw.setText("Сравнения: " + finalComparsions);
-                            tw = findViewById(R.id.lab3DirectIncTime);
-                            tw.setText("Время (сек): " + finalTime);
-                            tw = findViewById(R.id.lab3DirectIncSwaps);
+                            tw = findViewById(R.id.lab4ShakerSortTime);
+                            tw.setText("Время (сек): " + nanoToSec(finalTime));
+                            tw = findViewById(R.id.lab4ShakerSortSwaps);
                             tw.setText("Перестановки: " + finalSwaps);
                         }
                     });
@@ -382,45 +405,35 @@ public class Lab3Activity extends AppCompatActivity {
             }.start();
         }
 
-        /// Если был передан массив для сортировки прямым выбором
-        if (directSelArray != null) {
+        /// Если был передан массив для сортировки Шелла
+        if (shellSortArray != null) {
             new Thread() {
                 public void run() {
                     /// Инициализируем переменные для подсчёта сравнений и перемещений и
                     /// засекаем время
-                    int comparsions = 0, swaps = 0;
+                    int comparsions = 0, swaps = 0, i, j, k, tmp;
                     long time = System.nanoTime();
-
-                    /// Переменные для хранения максимального элемента и его индекса
-                    int max, max_index;
-                    /// Переменная для хранения границы сортированной области
-                    int edge = directSelArray.length;
-                    while (edge != 0) {
-                        // Ищем максимальный неотсортированный элемент и запоминаем его индекс
-                        max = directSelArray[0];
-                        max_index = 0;
-                        for (int i = 0; i < edge; i++) {
-                            if (directSelArray[i] >= max) {
+                    /// N - количество элементов в массиве
+                    int N = shellSortArray.length;
+                    /// Создаём группы через каждые k элементов.
+                    /// Размер начинается с N/2 и уменьшается
+                    for (k = N / 2; k > 0; k /= 2) {
+                        /// Сортируем группу
+                        for (i = k; i < N; i++) {
+                            /// Запоминаем граничный элемент
+                            tmp = shellSortArray[i];
+                            /// Идём с конца через каждые k элементов и двигаем те, что больше tmp
+                            for (j = i; j >= k; j -= k) {
                                 comparsions++;
-                                max = directSelArray[i];
-                                max_index = i;
+                                if (tmp < shellSortArray[j - k]) {
+                                    swaps++;
+                                    shellSortArray[j] = shellSortArray[j - k];
+                                } else
+                                    break;
                             }
+                            /// Вставляем элемент
+                            shellSortArray[j] = tmp;
                         }
-
-                        /// Уменьшаем неотсортированную зону
-                        edge--;
-
-                        /// Если элемент на границе сортированной зоны, то его не надо сортировать
-                        if (max_index == edge)
-                            continue;
-
-                        /// Сдвигаем элементы с позиции максимального до границы
-                        for (int i = max_index; i < edge; i++) {
-                            swaps++;
-                            directSelArray[i] = directSelArray[i + 1];
-                        }
-                        /// Вставляем максимальный элемент на границу
-                        directSelArray[edge] = max;
                     }
 
                     /// Останавливаем таймер и записываем результаты на экране
@@ -432,15 +445,15 @@ public class Lab3Activity extends AppCompatActivity {
                         @Override
                         public void run() {
                             EditText box;
-                            box = findViewById(R.id.lab3DirectSelBox);
-                            box.setText(arrayToString(directSelArray));
+                            box = findViewById(R.id.lab4ShellSortBox);
+                            box.setText(arrayToString(shellSortArray));
 
                             TextView tw;
-                            tw = findViewById(R.id.lab3DirectSelComps);
+                            tw = findViewById(R.id.lab4ShellSortComps);
                             tw.setText("Сравнения: " + finalComparsions);
-                            tw = findViewById(R.id.lab3DirectSelTime);
-                            tw.setText("Время (сек): " + finalTime);
-                            tw = findViewById(R.id.lab3DirectSelSwaps);
+                            tw = findViewById(R.id.lab4ShellSortTime);
+                            tw.setText("Время (сек): " + nanoToSec(finalTime));
+                            tw = findViewById(R.id.lab4ShellSortSwaps);
                             tw.setText("Перестановки: " + finalSwaps);
                         }
                     });
@@ -454,9 +467,8 @@ public class Lab3Activity extends AppCompatActivity {
      *
      * @param containerId Идентификатор контейнера.
      * @return true, если контейнер активен на данный момент, и false, если нет.
-     *
-     * @see Lab3Activity#DIRECTINC_CONTAINER Контейнер сортировки прямым включением
-     * @see Lab3Activity#DIRECTSEL_CONTAINER Контейнер сортировки прямым выбором
+     * @see Lab4Activity#SHAKERSORT_CONTAINER Контейнер шейкерной сортировки
+     * @see Lab4Activity#SHELLSORT_CONTAINER Контейнер сортировки Шелла
      */
     private boolean isContainerActive(int containerId) {
         return ((selectedContainers & containerId) > 0);
@@ -468,7 +480,6 @@ public class Lab3Activity extends AppCompatActivity {
      *
      * @param nums Массив символов для проверки.
      * @return true, если строка состоит из цифр и пробелов, иначе false.
-     *
      * @see Character#isDigit(char)
      */
     private boolean isStringCorrect(char[] nums) {
@@ -479,5 +490,17 @@ public class Lab3Activity extends AppCompatActivity {
                 return false;
         }
         return true;
+    }
+
+    /**
+     * Переводит наносекунды в секунды (целая часть отделяется запятой)
+     *
+     * @param time Число наносекунд
+     * @return Строка с количеством секунд.
+     * @see System#nanoTime()
+     */
+    @SuppressLint("DefaultLocale")
+    private String nanoToSec(long time) {
+        return String.format("%d,%09d", time / 1000000000, time % 1000000000);
     }
 }

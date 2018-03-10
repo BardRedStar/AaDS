@@ -19,7 +19,8 @@
         </activity>
         <activity android:name=".Lab2Activity" />
         <activity android:name=".Lab1Activity" />
-        <activity android:name=".Lab3Activity"></activity>
+        <activity android:name=".Lab3Activity" />
+        <activity android:name=".Lab4Activity"></activity>
     </application>
 
 </manifest>

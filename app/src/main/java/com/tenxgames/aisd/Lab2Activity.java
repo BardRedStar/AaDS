@@ -1,5 +1,6 @@
 package com.tenxgames.aisd;
 
+import android.annotation.SuppressLint;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.SparseIntArray;
@@ -95,7 +96,6 @@ public class Lab2Activity extends AppCompatActivity {
      *
      * @param sNums Строка для парсинга
      * @return Массив чисел из строки
-     *
      */
     public int[] parseNums(String sNums) {
         String[] nums = sNums.split(" ");
@@ -112,8 +112,7 @@ public class Lab2Activity extends AppCompatActivity {
      * Количество чисел - {@link Lab2Activity#MAX_RANDOM_AMOUNT},
      * максимальное значение элемента - {@link Lab2Activity#MAX_RANDOM_NUMBER}.
      *
-     * @return     Массив случайных чисел
-     *
+     * @return Массив случайных чисел
      * @see Random
      */
     public int[] randomNums() {
@@ -197,8 +196,7 @@ public class Lab2Activity extends AppCompatActivity {
                         /// А через запятую выведем остаток
                         tw = findViewById(R.id.lab2ModeTime);
                         long resTime = endTime - startTime;
-                        tw.setText("Время моды (сек): " + String.valueOf(resTime / 1000000000)
-                                + "," + String.format("%09d", resTime % 1000000000));
+                        tw.setText("Время моды (сек): " + nanoToSec(resTime));
                     }
                 });
                 /// Очищаем массив
@@ -243,8 +241,7 @@ public class Lab2Activity extends AppCompatActivity {
                         tw.setText("Медиана: " + median);
                         tw = findViewById(R.id.lab2MedianTime);
                         long resTime = endTime - startTime;
-                        tw.setText("Время медианы (сек): " + String.valueOf(resTime / 1000000000)
-                                + "," + String.format("%09d", resTime % 1000000000));
+                        tw.setText("Время медианы (сек): " + nanoToSec(resTime));
 
                         /// Выведем отсортированный массив в поле для ввода, чтобы было удобно
                         /// отслеживать результат
@@ -268,7 +265,6 @@ public class Lab2Activity extends AppCompatActivity {
      *
      * @param nums Массив символов для проверки
      * @return true, если строка состоит из цифр и пробелов, иначе false
-     *
      * @see Character#isDigit(char)
      */
     public boolean checkString(char[] nums) {
@@ -277,5 +273,19 @@ public class Lab2Activity extends AppCompatActivity {
                 return false;
         }
         return true;
+    }
+
+
+    /**
+     * Переводит наносекунды в секунды (целая часть отделяется запятой)
+     *
+     * @param time Число наносекунд
+     * @return Строка с количеством секунд.
+     *
+     * @see System#nanoTime()
+     */
+    @SuppressLint("DefaultLocale")
+    private String nanoToSec(long time) {
+        return String.format("%d,%09d", time / 1000000000, time % 1000000000);
     }
 }
