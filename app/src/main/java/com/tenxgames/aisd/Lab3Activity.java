@@ -1,5 +1,7 @@
 package com.tenxgames.aisd;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -68,6 +70,13 @@ public class Lab3Activity extends AppCompatActivity {
         }
     };
 
+    private int[] directIncSwapsArray = null;
+
+    private int[] directSelSwapsArray = null;
+
+    private int[] directIncArray = null;
+
+    private int[] directSelArray = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,7 +149,7 @@ public class Lab3Activity extends AppCompatActivity {
      * @see Button
      * @see View.OnClickListener
      * @see Lab3Activity#getRandomIntArray()
-     * @see Lab3Activity#startSort(int[], int[])
+     * @see Lab3Activity#startSort()
      * @see Lab3Activity#isStringCorrect(char[])
      */
     private void initializeButtons() {
@@ -174,7 +183,9 @@ public class Lab3Activity extends AppCompatActivity {
                     }
                 }
 
-                startSort(parseStringtoArray(directIncStr), parseStringtoArray(directSelStr));
+                directIncArray = parseStringtoArray(directIncStr);
+                directSelArray = parseStringtoArray(directSelStr);
+                startSort();
             }
         });
 
@@ -182,7 +193,7 @@ public class Lab3Activity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int[] directIncArray, directSelArray, sharedArray;
+                int[] sharedArray;
                 EditText box;
                 TextView tw;
 
@@ -218,7 +229,7 @@ public class Lab3Activity extends AppCompatActivity {
                     tw.setText("Количество элементов: " + directSelArray.length);
                 }
 
-                startSort(directIncArray, directSelArray);
+                startSort();
             }
         });
 
@@ -252,6 +263,28 @@ public class Lab3Activity extends AppCompatActivity {
                 box.setText("");
                 box = findViewById(R.id.lab3DirectSelBox);
                 box.setText("");
+            }
+        });
+
+        btn = findViewById(R.id.lab3DirectIncShowSwapsButton);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getBaseContext(), SwapsTableActivity.class);
+                intent.putExtra("swaps", directIncSwapsArray);
+                intent.putExtra("numbers", directIncArray);
+                startActivity(intent);
+            }
+        });
+
+        btn = findViewById(R.id.lab3DirectSelShowSwapsButton);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getBaseContext(), SwapsTableActivity.class);
+                intent.putExtra("swaps", directSelSwapsArray);
+                intent.putExtra("numbers", directSelArray);
+                startActivity(intent);
             }
         });
     }
@@ -323,11 +356,8 @@ public class Lab3Activity extends AppCompatActivity {
 
     /**
      * Инициализирует сортировку введенных массивов, используя отдельные потоки.
-     *
-     * @param directIncArray Массив для сортировки прямым включением.
-     * @param directSelArray Массив для сортировки прямым выбором.
      */
-    private void startSort(final int[] directIncArray, final int[] directSelArray) {
+    private void startSort() {
         /// Если был передан массив для сортировки прямым включением
         if (directIncArray != null) {
             new Thread() {
@@ -336,11 +366,14 @@ public class Lab3Activity extends AppCompatActivity {
                     /// засекаем время
                     int comparsions = 0, swaps = 0;
                     long time = System.nanoTime();
-                    int tmp;
+                    int tmp, tmpSwap;
+                    directIncSwapsArray = new int[directIncArray.length];
+
                     /// Начинаем сортировку прямым включением
                     for (int i = 1; i < directIncArray.length; i++) {
                         /// Запоминаем элемент
                         tmp = directIncArray[i];
+                        tmpSwap = directIncSwapsArray[i];
                         /// Ищем место для вставки
                         for (int j = 0; j < i; j++) {
                             comparsions++;
@@ -349,9 +382,14 @@ public class Lab3Activity extends AppCompatActivity {
                                 for (int x = i; x > j; x--) {
                                     swaps++;
                                     directIncArray[x] = directIncArray[x - 1];
+                                    directIncSwapsArray[x-1]++;
+                                    directIncSwapsArray[x]++;
+                                    directIncSwapsArray[x] = directIncSwapsArray[x - 1];
                                 }
                                 /// Вставляем элемент
                                 directIncArray[j] = tmp;
+                                directIncSwapsArray[j] = tmpSwap+1;
+                                swaps++;
                                 break;
                             }
                         }
@@ -373,7 +411,7 @@ public class Lab3Activity extends AppCompatActivity {
                             tw = findViewById(R.id.lab3DirectIncComps);
                             tw.setText("Сравнения: " + finalComparsions);
                             tw = findViewById(R.id.lab3DirectIncTime);
-                            tw.setText("Время (сек): " + finalTime);
+                            tw.setText("Время (сек): " + nanoToSec(finalTime));
                             tw = findViewById(R.id.lab3DirectIncSwaps);
                             tw.setText("Перестановки: " + finalSwaps);
                         }
@@ -390,14 +428,15 @@ public class Lab3Activity extends AppCompatActivity {
                     /// засекаем время
                     int comparsions = 0, swaps = 0;
                     long time = System.nanoTime();
-
+                    directSelSwapsArray = new int[directSelArray.length];
                     /// Переменные для хранения максимального элемента и его индекса
-                    int max, max_index;
+                    int max, max_index, tmpSwap;
                     /// Переменная для хранения границы сортированной области
                     int edge = directSelArray.length;
                     while (edge != 0) {
                         // Ищем максимальный неотсортированный элемент и запоминаем его индекс
                         max = directSelArray[0];
+
                         max_index = 0;
                         for (int i = 0; i < edge; i++) {
                             if (directSelArray[i] >= max) {
@@ -414,13 +453,19 @@ public class Lab3Activity extends AppCompatActivity {
                         if (max_index == edge)
                             continue;
 
+                        tmpSwap = directSelSwapsArray[max_index];
+
                         /// Сдвигаем элементы с позиции максимального до границы
                         for (int i = max_index; i < edge; i++) {
                             swaps++;
                             directSelArray[i] = directSelArray[i + 1];
+                            directSelSwapsArray[i+1]++;
+                            directSelSwapsArray[i] = directSelSwapsArray[i+1];
                         }
                         /// Вставляем максимальный элемент на границу
                         directSelArray[edge] = max;
+                        directSelSwapsArray[edge] = tmpSwap+1;
+                        swaps++;
                     }
 
                     /// Останавливаем таймер и записываем результаты на экране
@@ -439,7 +484,7 @@ public class Lab3Activity extends AppCompatActivity {
                             tw = findViewById(R.id.lab3DirectSelComps);
                             tw.setText("Сравнения: " + finalComparsions);
                             tw = findViewById(R.id.lab3DirectSelTime);
-                            tw.setText("Время (сек): " + finalTime);
+                            tw.setText("Время (сек): " + nanoToSec(finalTime));
                             tw = findViewById(R.id.lab3DirectSelSwaps);
                             tw.setText("Перестановки: " + finalSwaps);
                         }
@@ -454,7 +499,6 @@ public class Lab3Activity extends AppCompatActivity {
      *
      * @param containerId Идентификатор контейнера.
      * @return true, если контейнер активен на данный момент, и false, если нет.
-     *
      * @see Lab3Activity#DIRECTINC_CONTAINER Контейнер сортировки прямым включением
      * @see Lab3Activity#DIRECTSEL_CONTAINER Контейнер сортировки прямым выбором
      */
@@ -468,7 +512,6 @@ public class Lab3Activity extends AppCompatActivity {
      *
      * @param nums Массив символов для проверки.
      * @return true, если строка состоит из цифр и пробелов, иначе false.
-     *
      * @see Character#isDigit(char)
      */
     private boolean isStringCorrect(char[] nums) {
@@ -479,5 +522,17 @@ public class Lab3Activity extends AppCompatActivity {
                 return false;
         }
         return true;
+    }
+
+    /**
+     * Переводит наносекунды в секунды (целая часть отделяется запятой)
+     *
+     * @param time Число наносекунд
+     * @return Строка с количеством секунд.
+     * @see System#nanoTime()
+     */
+    @SuppressLint("DefaultLocale")
+    private String nanoToSec(long time) {
+        return String.format("%d,%09d", time / 1000000000, time % 1000000000);
     }
 }

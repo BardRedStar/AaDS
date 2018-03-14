@@ -145,6 +145,14 @@
                 android:layout_marginTop="8dp"
                 android:text="Сравнения: "
                 android:textSize="20sp" />
+
+            <Button
+                android:id="@+id/lab3DirectIncShowSwapsButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/colorPrimary"
+                android:text="Перестановки"
+                android:textColor="@android:color/white" />
         </LinearLayout>
 
         <LinearLayout
@@ -206,6 +214,14 @@
                 android:layout_marginTop="8dp"
                 android:text="Сравнения: "
                 android:textSize="20sp" />
+
+            <Button
+                android:id="@+id/lab3DirectSelShowSwapsButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/colorPrimary"
+                android:text="Перестановки"
+                android:textColor="@android:color/white" />
 
         </LinearLayout>
     </android.support.constraint.ConstraintLayout>

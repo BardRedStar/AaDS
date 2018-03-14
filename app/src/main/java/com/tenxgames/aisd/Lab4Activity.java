@@ -1,6 +1,7 @@
 package com.tenxgames.aisd;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -53,6 +54,14 @@ public class Lab4Activity extends AppCompatActivity {
      */
     private boolean isSyncFillingActivated;
 
+    private int[] shakerSortSwapsArray = null;
+
+    private int[] shellSortSwapsArray = null;
+
+    private int[] shakerSortArray = null;
+
+    private int[] shellSortArray = null;
+
     /// Событие смены фокуса для обеспечения синхронного заполнения
     private View.OnFocusChangeListener onFocusChangeListener = new View.OnFocusChangeListener() {
         @Override
@@ -68,7 +77,6 @@ public class Lab4Activity extends AppCompatActivity {
             }
         }
     };
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,7 +149,7 @@ public class Lab4Activity extends AppCompatActivity {
      * @see Button
      * @see View.OnClickListener
      * @see Lab4Activity#getRandomIntArray()
-     * @see Lab4Activity#startSort(int[], int[])
+     * @see Lab4Activity#startSort()
      * @see Lab4Activity#isStringCorrect(char[])
      */
     private void initializeButtons() {
@@ -175,7 +183,9 @@ public class Lab4Activity extends AppCompatActivity {
                     }
                 }
 
-                startSort(parseStringtoArray(shakerSortStr), parseStringtoArray(shellSortStr));
+                shakerSortArray = parseStringtoArray(shakerSortStr);
+                shellSortArray = parseStringtoArray(shellSortStr);
+                startSort();
             }
         });
 
@@ -183,11 +193,11 @@ public class Lab4Activity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int[] shakerSortArray, shellSortArray, sharedArray;
+                int[] sharedArray;
                 EditText box;
                 TextView tw;
 
-                shakerSortArray = shellSortArray = sharedArray = null;
+                sharedArray = null;
 
                 if (isSyncFillingActivated) {
                     sharedArray = getRandomIntArray();
@@ -219,7 +229,7 @@ public class Lab4Activity extends AppCompatActivity {
                     tw.setText("Количество элементов: " + shellSortArray.length);
                 }
 
-                startSort(shakerSortArray, shellSortArray);
+                startSort();
             }
         });
 
@@ -238,6 +248,28 @@ public class Lab4Activity extends AppCompatActivity {
                 box.setText("");
             }
         });
+
+        btn = findViewById(R.id.lab3ShakerSortShowSwapsButton);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getBaseContext(), SwapsTableActivity.class);
+                intent.putExtra("swaps", shakerSortSwapsArray);
+                intent.putExtra("numbers", shakerSortArray);
+                startActivity(intent);
+            }
+        });
+
+        btn = findViewById(R.id.lab3ShellSortShowSwapsButton);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getBaseContext(), SwapsTableActivity.class);
+                intent.putExtra("swaps", shellSortSwapsArray);
+                intent.putExtra("numbers", shellSortArray);
+                startActivity(intent);
+            }
+        });
     }
 
     /**
@@ -245,8 +277,7 @@ public class Lab4Activity extends AppCompatActivity {
      *
      * @see TextView
      */
-    private void clearResults()
-    {
+    private void clearResults() {
         TextView tw;
         tw = findViewById(R.id.lab4ShakerSortAmount);
         tw.setText("Количество элементов: ");
@@ -333,11 +364,8 @@ public class Lab4Activity extends AppCompatActivity {
 
     /**
      * Инициализирует сортировку введенных массивов, используя отдельные потоки.
-     *
-     * @param shakerSortArray Массив для шейкерной сортировки.
-     * @param shellSortArray  Массив для сортировки Шелла.
      */
-    private void startSort(final int[] shakerSortArray, final int[] shellSortArray) {
+    private void startSort() {
         /// Если был передан массив для шейкерной сортировки
         if (shakerSortArray != null) {
             new Thread() {
@@ -347,6 +375,7 @@ public class Lab4Activity extends AppCompatActivity {
                     int comparsions = 0, swaps = 0;
                     long time = System.nanoTime();
                     int tmp;
+                    shakerSortSwapsArray = new int[shakerSortArray.length];
                     /// Переменные для хранения правой и левой границ
                     int right = shakerSortArray.length - 1;
                     int left = 0;
@@ -361,6 +390,13 @@ public class Lab4Activity extends AppCompatActivity {
                                 tmp = shakerSortArray[i];
                                 shakerSortArray[i] = shakerSortArray[i + 1];
                                 shakerSortArray[i + 1] = tmp;
+
+                                shakerSortSwapsArray[i]++;
+                                shakerSortSwapsArray[i + 1]++;
+
+                                tmp = shakerSortSwapsArray[i];
+                                shakerSortSwapsArray[i] = shakerSortSwapsArray[i + 1];
+                                shakerSortSwapsArray[i + 1] = tmp;
                             }
                         }
                         /// Один элемент "всплыл", а значит надо подвинуть правую границу
@@ -374,6 +410,13 @@ public class Lab4Activity extends AppCompatActivity {
                                 tmp = shakerSortArray[i];
                                 shakerSortArray[i] = shakerSortArray[i - 1];
                                 shakerSortArray[i - 1] = tmp;
+
+                                shakerSortSwapsArray[i]++;
+                                shakerSortSwapsArray[i - 1]++;
+
+                                tmp = shakerSortSwapsArray[i];
+                                shakerSortSwapsArray[i] = shakerSortSwapsArray[i - 1];
+                                shakerSortSwapsArray[i - 1] = tmp;
                             }
                         }
                         /// Сдвигаем левую границу
@@ -411,8 +454,11 @@ public class Lab4Activity extends AppCompatActivity {
                 public void run() {
                     /// Инициализируем переменные для подсчёта сравнений и перемещений и
                     /// засекаем время
-                    int comparsions = 0, swaps = 0, i, j, k, tmp;
+                    int comparsions = 0, swaps = 0, i, j, k, tmp, tmpSwaps;
                     long time = System.nanoTime();
+
+                    shellSortSwapsArray = new int[shellSortArray.length];
+
                     /// N - количество элементов в массиве
                     int N = shellSortArray.length;
                     /// Создаём группы через каждые k элементов.
@@ -422,17 +468,21 @@ public class Lab4Activity extends AppCompatActivity {
                         for (i = k; i < N; i++) {
                             /// Запоминаем граничный элемент
                             tmp = shellSortArray[i];
+                            tmpSwaps = shellSortSwapsArray[i];
                             /// Идём с конца через каждые k элементов и двигаем те, что больше tmp
                             for (j = i; j >= k; j -= k) {
                                 comparsions++;
                                 if (tmp < shellSortArray[j - k]) {
                                     swaps++;
                                     shellSortArray[j] = shellSortArray[j - k];
+                                    shellSortSwapsArray[j - k]++;
+                                    shellSortSwapsArray[j] = shellSortSwapsArray[j - k];
                                 } else
                                     break;
                             }
                             /// Вставляем элемент
                             shellSortArray[j] = tmp;
+                            shellSortSwapsArray[j] = tmpSwaps+1;
                         }
                     }
 
