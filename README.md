@@ -1,6 +1,6 @@
 # Algorithms and Data Structures
 ## Description
-This repository was created for holding general data algorythms on Android platform. 
+This repository was created for holding general data algorythms on Android platform. Supported Androin version: 4.2+
 
 ## Algorythms:
 * Knuth–Morris–Pratt string searching algorithm
