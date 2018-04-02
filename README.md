@@ -16,3 +16,10 @@ This repository was created for holding general data algorythms on Android platf
 * Depth-first searching algorithm (***graphs theory***)
 * Finding minimum spanning tree algorithm (***Prim's algorithm***)
 
+## Screenshots:
+![alt text](https://github.com/BardRedStar/AaSD/blob/master/screenshots/1.png)
+![alt text](https://github.com/BardRedStar/AaSD/blob/master/screenshots/2.PNG)
+![alt text](https://github.com/BardRedStar/AaSD/blob/master/screenshots/3.PNG)
+![alt text](https://github.com/BardRedStar/AaSD/blob/master/screenshots/4.PNG)
+![alt text](https://github.com/BardRedStar/AaSD/blob/master/screenshots/5.PNG)
+![alt text](https://github.com/BardRedStar/AaSD/blob/master/screenshots/6.PNG)
