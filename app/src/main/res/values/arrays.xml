@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="titles">
+        <item>"Поиск образа в строке (КМП)"</item>
+        <item>"Поиск моды и медианы"</item>
+        <item>"Сортировки прямым выбором и включением"</item>
+        <item>"Сортировки Шелла и Шейкерная"</item>
+    </string-array>
+</resources>
