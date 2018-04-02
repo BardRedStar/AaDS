@@ -35,7 +35,7 @@ public class Lab1Activity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lab1);
-        setTitle("Лабораторная работа 1");
+        setTitle(getIntent().getStringExtra("title"));
 
         /// Кнопка "Поехали"
         Button btn = findViewById(R.id.lab1StartButton);

@@ -26,7 +26,7 @@ public class Lab2Activity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lab2);
-        setTitle("Лабораторная работа 2");
+        setTitle(getIntent().getStringExtra("title"));
 
         /// Отклик кнопки "Поехали"
         Button btn = findViewById(R.id.lab2StartButton);

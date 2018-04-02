@@ -82,7 +82,7 @@ public class Lab4Activity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lab4);
-
+        setTitle(getIntent().getStringExtra("title"));
         /// Инициализация элементов управления
         initializeCheckBoxes();
         initializeButtons();
