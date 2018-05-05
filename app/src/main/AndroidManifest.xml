@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.tenxgames.aisd">
 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -21,7 +23,9 @@
         <activity android:name=".Lab1Activity" />
         <activity android:name=".Lab3Activity" />
         <activity android:name=".Lab4Activity" />
-        <activity android:name=".SwapsTableActivity"></activity>
+        <activity android:name=".SwapsTableActivity" />
+        <activity android:name=".Lab5Activity" />
+        <activity android:name=".SortsLogActivity"></activity>
     </application>
 
 </manifest>
