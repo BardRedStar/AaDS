@@ -25,7 +25,9 @@
         <activity android:name=".Lab4Activity" />
         <activity android:name=".SwapsTableActivity" />
         <activity android:name=".Lab5Activity" />
-        <activity android:name=".SortsLogActivity"></activity>
+        <activity android:name=".SortsLogActivity" />
+        <activity android:name=".Lab6Activity" />
+        <activity android:name=".Lab7Activity"></activity>
     </application>
 
 </manifest>
