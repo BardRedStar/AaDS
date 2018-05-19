@@ -16,7 +16,8 @@
             android:id="@+id/lab7CanvasView"
             android:layout_width="match_parent"
             android:layout_height="511dp"
-            app:enable_weight="false">
+            app:enable_weight="true"
+            app:oriented="true">
 
         </com.tenxgames.aisd.CanvasView>
 

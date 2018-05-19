@@ -11,6 +11,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -32,7 +33,8 @@ public class CanvasView extends View {
     final float TEXT_SIZE = NODE_RADIUS;
 
     public ArrayList<Node> listNodes;
-    private Paint lineBrush, circleBrush, circleSelectionBrush, textBrush, weightBrush;
+    private Paint lineBrush, circleBrush, circleSelectionBrush,
+            textBrush, weightBrush, orientedLineBrushFrom, orientedLineBrushTo;
     public Node selectedNode1, selectedNode2;
     boolean isWeightEnabled;
     boolean isGraphOriented;
@@ -53,6 +55,14 @@ public class CanvasView extends View {
         lineBrush = new Paint();
         lineBrush.setColor(getResources().getColor(R.color.colorPrimary));
         lineBrush.setStrokeWidth(LINE_RADIUS);
+
+        orientedLineBrushFrom = new Paint();
+        orientedLineBrushFrom.setColor(Color.RED);
+        orientedLineBrushFrom.setStrokeWidth(LINE_RADIUS);
+
+        orientedLineBrushTo = new Paint();
+        orientedLineBrushTo.setColor(Color.GREEN);
+        orientedLineBrushTo.setStrokeWidth(LINE_RADIUS);
 
         /// Инициализация кисти для рисования круга вершины
         circleBrush = new Paint();
@@ -132,34 +142,43 @@ public class CanvasView extends View {
             for (Link link : n.links) {
 
                 /// Условие для одноразового построения связи (связь двусторонняя)
-                if (link.node1.id < link.node2.id) {
-                    /// Рисуем ребро
-                    canvas.drawLine(n.x, n.y, link.node2.x, link.node2.y, lineBrush);
 
-                    /// Если вес включен, то пишем и его
-                    if (isWeightEnabled) {
-                        /// Середина отрезка
-                        float halfX = (link.node1.x+link.node2.x)/2f;
-                        float halfY = (link.node1.y+link.node2.y)/2f;
-                        /// Перпендикулярный вектор
-                        float perpX = link.node2.y-link.node1.y;
-                        float perpY = -(link.node2.x-link.node1.x);
+                /// Рисуем ребро
+                if (!isGraphOriented) {
+                    if (link.node1.id < link.node2.id)
+                        canvas.drawLine(n.x, n.y, link.node2.x, link.node2.y, lineBrush);
+                }
+                else
+                {
+                    /// Середина отрезка
+                    float halfX = (link.node1.x+link.node2.x)/2f;
+                    float halfY = (link.node1.y+link.node2.y)/2f;
+                    canvas.drawLine(n.x, n.y, halfX, halfY, orientedLineBrushFrom);
+                    canvas.drawLine(halfX, halfY, link.node2.x, link.node2.y, orientedLineBrushTo);
+                }
+                /// Если вес включен, то пишем и его
+                if (isWeightEnabled) {
+                    /// Середина отрезка
+                    float halfX = (link.node1.x+link.node2.x)/2f;
+                    float halfY = (link.node1.y+link.node2.y)/2f;
+                    /// Перпендикулярный вектор
+                    float perpX = link.node2.y-link.node1.y;
+                    float perpY = -(link.node2.x-link.node1.x);
 
-                        /// Получаем длину перпендикулярного вектора
-                        float length = getDistanceBetweenPoints(0, 0, perpX, perpY);
+                    /// Получаем длину перпендикулярного вектора
+                    float length = getDistanceBetweenPoints(0, 0, perpX, perpY);
 
-                        ///Нормируем вектор и откладываем его от середины отрезка
-                        perpX = (perpX/length) * 60.0f + halfX;
-                        perpY = (perpY/length) * 60.0f + halfY;
+                    ///Нормируем вектор и откладываем его от середины отрезка
+                    perpX = (perpX/length) * 60.0f + halfX;
+                    perpY = (perpY/length) * 60.0f + halfY;
 
-                        /// Пишем текст
-                        tmp = String.valueOf(link.weight);
-                        textBrush.getTextBounds(tmp, 0, tmp.length(), textBounds);
-                        canvas.drawText(String.valueOf(link.weight),
-                                perpX - textBrush.measureText(tmp) / 2f,
-                                perpY + textBounds.height() / 2f,
-                                weightBrush);
-                    }
+                    /// Пишем текст
+                    tmp = String.valueOf(link.weight);
+                    textBrush.getTextBounds(tmp, 0, tmp.length(), textBounds);
+                    canvas.drawText(String.valueOf(link.weight),
+                            perpX - textBrush.measureText(tmp) / 2f,
+                            perpY + textBounds.height() / 2f,
+                            weightBrush);
                 }
             }
         }
@@ -187,9 +206,8 @@ public class CanvasView extends View {
 
     @SuppressLint("ClickableViewAccessibility")
     public boolean onTouchEvent(MotionEvent event) {
-
         /// Нажатие на экран
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+        if (event.getAction() == MotionEvent.ACTION_UP) {
             float x = event.getX();
             float y = event.getY();
             for (Node n : listNodes) {
@@ -270,7 +288,7 @@ public class CanvasView extends View {
     /**
      * Класс вершины
      */
-    public class Node {
+    public static class Node {
         public float x; //Абсцисса
         public float y; //Ордината
         public int id; // Идентификатор вершины
@@ -296,6 +314,15 @@ public class CanvasView extends View {
                     return true;
 
             return false;
+        }
+
+        public int getLinkWeight(Node node)
+        {
+            for (Link l : links)
+                if (l.node1 == node || l.node2 == node)
+                    return l.weight;
+
+            return Integer.MAX_VALUE;
         }
 
         /**
@@ -333,7 +360,7 @@ public class CanvasView extends View {
     /**
      * Класс связи (ребро)
      */
-    public class Link {
+    public static class Link {
         public Node node1; // Первая вершина
         public Node node2; // Вторая вершина
         public int weight; // Вес
