@@ -25,7 +25,11 @@ public class Lab7Activity extends AppCompatActivity {
                 ArrayList<CanvasView.Node> nodes = canvas.getListNodes();
 
                 TextView tw = findViewById(R.id.lab7Result);
-                tw.setText(Dijkstra(nodes));
+
+                if (nodes.size() == 0)
+                    tw.setText("Граф пустой!");
+                else
+                    tw.setText(Dijkstra(nodes));
             }
         });
     }

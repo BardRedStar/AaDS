@@ -9,6 +9,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -158,27 +160,29 @@ public class CanvasView extends View {
                 }
                 /// Если вес включен, то пишем и его
                 if (isWeightEnabled) {
-                    /// Середина отрезка
-                    float halfX = (link.node1.x+link.node2.x)/2f;
-                    float halfY = (link.node1.y+link.node2.y)/2f;
-                    /// Перпендикулярный вектор
-                    float perpX = link.node2.y-link.node1.y;
-                    float perpY = -(link.node2.x-link.node1.x);
+                    if (isGraphOriented || link.node1.id < link.node2.id) {
+                        /// Середина отрезка
+                        float halfX = (link.node1.x + link.node2.x) / 2f;
+                        float halfY = (link.node1.y + link.node2.y) / 2f;
+                        /// Перпендикулярный вектор
+                        float perpX = link.node2.y - link.node1.y;
+                        float perpY = -(link.node2.x - link.node1.x);
 
-                    /// Получаем длину перпендикулярного вектора
-                    float length = getDistanceBetweenPoints(0, 0, perpX, perpY);
+                        /// Получаем длину перпендикулярного вектора
+                        float length = getDistanceBetweenPoints(0, 0, perpX, perpY);
 
-                    ///Нормируем вектор и откладываем его от середины отрезка
-                    perpX = (perpX/length) * 60.0f + halfX;
-                    perpY = (perpY/length) * 60.0f + halfY;
+                        ///Нормируем вектор и откладываем его от середины отрезка
+                        perpX = (perpX / length) * 60.0f + halfX;
+                        perpY = (perpY / length) * 60.0f + halfY;
 
-                    /// Пишем текст
-                    tmp = String.valueOf(link.weight);
-                    textBrush.getTextBounds(tmp, 0, tmp.length(), textBounds);
-                    canvas.drawText(String.valueOf(link.weight),
-                            perpX - textBrush.measureText(tmp) / 2f,
-                            perpY + textBounds.height() / 2f,
-                            weightBrush);
+                        /// Пишем текст
+                        tmp = String.valueOf(link.weight);
+                        textBrush.getTextBounds(tmp, 0, tmp.length(), textBounds);
+                        canvas.drawText(String.valueOf(link.weight),
+                                perpX - textBrush.measureText(tmp) / 2f,
+                                perpY + textBounds.height() / 2f,
+                                weightBrush);
+                    }
                 }
             }
         }
@@ -286,6 +290,15 @@ public class CanvasView extends View {
     }
 
     /**
+     * Устанавливает лист вершин
+     *
+     * @param listNodes Лист вершин для замены
+     */
+    public void setListNodes(ArrayList<Node> listNodes){
+        this.listNodes = listNodes;
+    }
+
+    /**
      * Класс вершины
      */
     public static class Node {
@@ -360,7 +373,7 @@ public class CanvasView extends View {
     /**
      * Класс связи (ребро)
      */
-    public static class Link {
+    public static class Link{
         public Node node1; // Первая вершина
         public Node node2; // Вторая вершина
         public int weight; // Вес

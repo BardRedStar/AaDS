@@ -27,7 +27,9 @@
         <activity android:name=".Lab5Activity" />
         <activity android:name=".SortsLogActivity" />
         <activity android:name=".Lab6Activity" />
-        <activity android:name=".Lab7Activity"></activity>
+        <activity android:name=".Lab7Activity" />
+        <activity android:name=".Lab8Activity" />
+        <activity android:name=".GraphResultActivity"></activity>
     </application>
 
 </manifest>
